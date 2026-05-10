@@ -1,118 +1,130 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tra cứu GCN Ủng hộ - Fly To Sky</title>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        :root { --primary: #1D4ED8; --primary-dark: #1E40AF; --primary-light: #DBEAFE; --bg-page: #EFF6FF; }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Be Vietnam Pro', sans-serif; background-color: var(--bg-page); color: #1E293B; }
-        .container { max-width: 800px; margin: 0 auto; padding: 2rem 1.2rem; }
-        header { text-align: center; margin-bottom: 2.5rem; }
-        .logo { width: 56px; height: 56px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin: 0 auto 1rem; }
-        .search-box { background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 2rem; }
-        .input-group { display: flex; gap: 0.5rem; }
-        input { flex: 1; height: 48px; padding: 0 1rem; border: 2px solid #E2E8F0; border-radius: 8px; font-size: 1rem; }
-        button { height: 48px; padding: 0 1.5rem; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
-        button:disabled { opacity: 0.7; }
-        .card { background: white; border: 1px solid #BFDBFE; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 1rem; }
-        .card-header { display: flex; align-items: center; gap: 1rem; }
-        .avatar { width: 44px; height: 44px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
-        .badge { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: 12px; padding: 3px 10px; border-radius: 99px; }
-        .card-body { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; font-size: 0.9rem; border-top: 1px solid #F1F5F9; padding-top: 1rem; }
-        .ma-gcn { font-family: monospace; color: var(--primary); font-weight: 600; }
-        .amount { color: var(--primary); font-weight: 700; }
-        .btn-view { display: block; text-align: center; padding: 0.6rem; border: 1px solid var(--primary); color: var(--primary); text-decoration: none; border-radius: 6px; font-weight: 600; }
-        footer { background: #1E3A8A; color: white; padding: 2.5rem 1.5rem; text-align: center; margin-top: 4rem; font-size: 13px; }
-        .spinner { width: 24px; height: 24px; border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 1rem auto; display: none; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .alert { padding: 1rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 1rem; display: none; border: 1px solid transparent; }
-        .alert-error { background: #FEF2F2; color: #B91C1C; border-color: #FECACA; }
-        @media (max-width: 480px) { .input-group { flex-direction: column; } .card-body { grid-template-columns: 1fr; } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tra cứu GCN - Fly To Sky</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin:0; padding:0; }
+body { font-family:'Be Vietnam Pro', sans-serif; background:#EFF6FF; color:#1E293B; }
+header{text-align:center; margin-bottom:2rem;}
+.logo{width:56px; height:56px; border-radius:50%; background:#1D4ED8; color:white; display:inline-flex; align-items:center; justify-content:center; font-weight:700; font-size:18px; margin-bottom:1rem;}
+h1.title{font-weight:700; color:#1E40AF; margin-bottom:0.5rem;}
+h2.subtitle{font-weight:500; color:#3B82F6; font-size:18px;}
+.search-box{text-align:center; margin:2rem 0;}
+.search-box input{width:480px; max-width:100%; height:48px; padding:0 1rem; border:1px solid #CBD5E1; border-radius:8px; font-size:16px;}
+.search-box button{margin-left:0.5rem; height:48px; padding:0 1.5rem; background:#1D4ED8; color:white; font-weight:600; border-radius:8px; transition:0.2s;}
+.search-box button:hover{background:#1E40AF;}
+.alert-error{background:#FEF2F2; border:1px solid #FECACA; color:#B91C1C; padding:0.75rem 1rem; border-radius:8px; margin:1rem auto; max-width:480px;}
+.alert-warning{background:#FFFBEB; border:1px solid #FDE68A; color:#92400E; padding:0.75rem 1rem; border-radius:8px; margin:1rem auto; max-width:480px;}
+.results-summary{font-size:14px; color:#6B7280; margin-bottom:1rem; text-align:center;}
+.cards{display:flex; flex-direction:column; gap:1rem;}
+.card{background:white; border:1px solid #BFDBFE; border-radius:12px; padding:1.25rem; transition:0.2s;}
+.card:hover{border-color:#93C5FD;}
+.card-header{display:flex; align-items:center; gap:1rem; margin-bottom:0.75rem;}
+.avatar{width:44px; height:44px; border-radius:50%; background:#1D4ED8; color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:16px;}
+.card-header .name{font-weight:700; font-size:18px; color:#1E40AF;}
+.badge{background:#DBEAFE; color:#1D4ED8; font-size:12px; padding:3px 10px; border-radius:9999px;}
+.card-detail{font-size:14px; margin:0.25rem 0;}
+.card-detail .maGCN{font-family:monospace; color:#1D4ED8; font-weight:600;}
+.card-detail .soTien{font-weight:700; color:#1D4ED8;}
+.card-footer{margin-top:1rem;}
+.card-footer button{padding:0.5rem 1rem; border:1px solid #1D4ED8; border-radius:8px; background:white; color:#1D4ED8; font-weight:600; transition:0.2s;}
+.card-footer button:hover{background:#DBEAFE;}
+.card-footer .no-link{background:#FEF9C3; color:#854D0E; border:none; padding:0.5rem 1rem; border-radius:8px; font-weight:600;}
+footer{background:#1E3A8A; color:white; padding:2.5rem 1.5rem; text-align:center; font-size:13px;}
+footer a{color:#93C5FD;}
+@media(max-width:480px){.search-box input,.search-box button{width:100%; margin:0.25rem 0;}}
+</style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo">FTS</div>
-            <h1 style="color:#1E40AF">Hệ thống Từ thiện Fly To Sky</h1>
-            <div style="color:#3B82F6; font-weight:500">Tra cứu Giấy Chứng Nhận Ủng Hộ</div>
-        </header>
-        <div class="search-box">
-            <p style="text-align:center; color:#64748B; font-size:0.9rem; margin-bottom:0.75rem">Tra cứu bằng Mã GCN, SĐT hoặc Họ và tên</p>
-            <div class="input-group">
-                <input type="text" id="searchInput" placeholder="Nhập từ khóa...">
-                <button id="searchBtn">TRA CỨU</button>
-            </div>
-            <div id="loading" class="spinner"></div>
+<header>
+  <div class="logo">FTS</div>
+  <h1 class="title">HỆ THỐNG TỪ THIỆN FLY TO SKY</h1>
+  <h2 class="subtitle">Tra cứu Giấy Chứng Nhận Ủng Hộ</h2>
+</header>
+
+<div class="search-box">
+  <input type="text" id="query" placeholder="Nhập Mã GCN, SĐT hoặc Họ tên">
+  <button id="btnSearch">TRA CỨU</button>
+</div>
+
+<div id="alertBox"></div>
+<div class="container">
+  <div class="results-summary" id="resultsSummary"></div>
+  <div class="cards" id="cardsContainer"></div>
+</div>
+
+<footer>
+  <p class="italic" style="font-style:italic;font-size:14px;color:#93C5FD;">Mọi thông tin chi tiết xin liên hệ:</p>
+  <p style="font-size:20px;font-weight:700;">HỆ THỐNG TỪ THIỆN FLY TO SKY</p>
+  <p style="font-size:13px;color:#BFDBFE;">Bao gồm Công ty TNHH Doanh nghiệp xã hội từ thiện và hỗ trợ phát triển cộng đồng Fly To Sky</p>
+  <p style="font-size:13px;color:#BFDBFE;">& Nhóm từ thiện Fly To Sky</p>
+  <hr style="border-top:1px rgba(255,255,255,0.15); margin:1.25rem 0;">
+  <p>Liên hệ: SĐT <a href="tel:0375136800">0375.136.800</a> | <a href="tel:0935939446">0935.939.446</a></p>
+  <p>Email: <a href="mailto:lienhe@flytoskycharity.vn">lienhe@flytoskycharity.vn</a> – <a href="mailto:donghanh@flytoskycharity.vn">donghanh@flytoskycharity.vn</a></p>
+  <p>Website: <a href="https://flytoskycharity.vn" target="_blank">flytoskycharity.vn</a></p>
+  <p>Zalo OA: <a href="https://zalo.me/flytoskycharity" target="_blank">Hệ thống từ thiện Fly To Sky</a></p>
+  <p>Fanpage: <a href="https://www.facebook.com/flytoskycharity" target="_blank">facebook.com/flytoskycharity</a></p>
+  <p>Cộng đồng Tình nguyện: <a href="https://www.facebook.com/groups/392919558235980" target="_blank">Tham gia nhóm</a></p>
+  <hr style="border-top:1px rgba(255,255,255,0.15); margin:1.25rem 0;">
+  <p style="font-size:12px;color:#6B9FD4;">© 2024 Hệ thống từ thiện Fly To Sky. Bảo lưu mọi quyền.</p>
+</footer>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbzqyAi_glLzCenGjT6S0h3AyClKxbwJNCdLUkXloKggVqcfg2EmF3kcJoSPTruynrVR/exec";
+const API_KEY = "FLY2SKY_SECRET_0209";
+
+const btn = document.getElementById('btnSearch');
+const queryInput = document.getElementById('query');
+const alertBox = document.getElementById('alertBox');
+const resultsSummary = document.getElementById('resultsSummary');
+const cardsContainer = document.getElementById('cardsContainer');
+
+btn.addEventListener("click", searchGCN);
+queryInput.addEventListener("keypress", e => { if(e.key==="Enter") searchGCN(); });
+
+function searchGCN(){
+  const query = queryInput.value.trim();
+  alertBox.innerHTML=""; resultsSummary.textContent=""; cardsContainer.innerHTML="";
+  if(!query){ alertBox.innerHTML='<div class="alert-error">Vui lòng nhập từ khóa</div>'; return; }
+
+  const callbackName = "cb_"+Date.now();
+  window[callbackName] = function(res){
+    delete window[callbackName]; document.body.removeChild(script);
+    if(!res.success){ alertBox.innerHTML=`<div class="alert-error">${res.message}</div>`; return; }
+    resultsSummary.textContent = `Tìm thấy ${res.count} kết quả cho '${query}'`;
+    if(res.count===0){ alertBox.innerHTML='<div class="alert-warning">Không tìm thấy kết quả</div>'; return; }
+
+    res.data.forEach(item => {
+      const avatar = item.hoTen ? item.hoTen.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase() : "?";
+      const card = document.createElement("div"); card.className="card";
+      card.innerHTML = `
+        <div class="card-header">
+          <div class="avatar">${avatar}</div>
+          <div>
+            <div class="name">${item.hoTen || "—"}</div>
+            <div class="badge">${item.chienDich || "—"}</div>
+          </div>
         </div>
-        <div id="alertBox" class="alert alert-error"></div>
-        <div id="resultsList" class="results-list"></div>
-    </div>
-    <footer>
-        <p>Mọi thông tin chi tiết xin liên hệ:</p>
-        <p style="font-size:18px; font-weight:700; margin:5px 0">HỆ THỐNG TỪ THIỆN FLY TO SKY</p>
-        <hr style="opacity:0.2; margin:15px 0">
-        <p>Email: lienhe@flytoskycharity.vn | Hotline: 0375.136.800</p>
-        <p>© 2024 Fly To Sky Charity System.</p>
-    </footer>
+        <div class="card-detail"><span class="label">Mã GCN:</span> <span class="maGCN">${item.maGCN||"—"}</span></div>
+        <div class="card-detail"><span class="label">Ngày ủng hộ:</span> ${item.ngayUngHo||"—"}</div>
+        <div class="card-detail"><span class="label">Số tiền:</span> <span class="soTien">${(item.soTien||0).toLocaleString('vi-VN')} VNĐ</span></div>
+        <div class="card-detail"><span class="label">SĐT:</span> ${item.sdt||"—"}</div>
+        <div class="card-footer">
+          ${item.linkGCN ? `<button onclick="window.open('${item.linkGCN}','_blank')">Xem GCN ↗</button>` :
+            `<span class="no-link">Chưa có GCN</span>`}
+        </div>`;
+      cardsContainer.appendChild(card);
+    });
+  };
 
-    <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwzjP72xZZ6asUigNZSIygWoz7SfSmNJ2O5db4nlCgTkntQBr4m2r5DtVXGQOURXtSB/exec";
-        const API_KEY = "FLY2SKY_SECRET_0209";
-
-        async function performSearch() {
-            const query = document.getElementById('searchInput').value.trim();
-            if (!query) return;
-
-            const loading = document.getElementById('loading');
-            const btn = document.getElementById('searchBtn');
-            const list = document.getElementById('resultsList');
-            const alertBox = document.getElementById('alertBox');
-
-            alertBox.style.display = 'none';
-            list.innerHTML = '';
-            loading.style.display = 'block';
-            btn.disabled = true;
-
-            try {
-                // SỬ DỤNG POST + TEXT/PLAIN ĐỂ VƯỢT CORS GIỐNG FILE BẠN CUNG CẤP
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ query: query, auth: API_KEY })
-                });
-
-                const result = await response.json();
-                if (!result.success) throw new Error(result.message);
-
-                if (result.data.length === 0) throw new Error("Không tìm thấy kết quả nào.");
-
-                result.data.forEach(item => {
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.innerHTML = `
-                        <div class="card-header"><div class="avatar">${item.hoTen[0]}</div>
-                        <div><div style="font-weight:700; color:#1E40AF">${item.hoTen}</div><div class="badge">${item.chienDich}</div></div></div>
-                        <div class="card-body">
-                            <div><span>Mã GCN</span><p class="ma-gcn">${item.maGCN}</p></div>
-                            <div><span>Số tiền</span><p class="amount">${Number(item.soTien).toLocaleString()} VNĐ</p></div>
-                        </div>
-                        ${item.linkGCN ? `<a href="${item.linkGCN}" target="_blank" class="btn-view">Xem GCN ↗</a>` : ''}
-                    `;
-                    list.appendChild(card);
-                });
-            } catch (e) {
-                alertBox.innerText = e.message;
-                alertBox.style.display = 'block';
-            } finally {
-                loading.style.display = 'none';
-                btn.disabled = false;
-            }
-        }
-        document.getElementById('searchBtn').onclick = performSearch;
-    </script>
+  const script = document.createElement("script");
+  script.src = `${API_URL}?query=${encodeURIComponent(query)}&auth=${API_KEY}&callback=${callbackName}`;
+  document.body.appendChild(script);
+}
+</script>
 </body>
 </html>
