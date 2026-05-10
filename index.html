@@ -268,7 +268,7 @@
 
     <script>
         // CẤU HÌNH HỆ THỐNG
-        const API_URL = "https://script.google.com/macros/s/AKfycbzBghwVe1ZKX2g49f0IAUoyjvV8c_AyNEW8ZFiF7gGCXXIQdhQjaecoAiVLI_R4I5gM/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbyMk4P-v_qpAKIle9n9qI5XaZcDRtY8UQcUxeb8pABahES-ZofMzUCQx9FnhUFNf8a2/exec";
         const API_KEY = "FLY2SKY_SECRET_0209";
 
         const searchInput = document.getElementById('searchInput');
@@ -279,42 +279,43 @@
         const resultsList = document.getElementById('resultsList');
 
         async function performSearch() {
-            const query = searchInput.value.trim();
-            if (!query) return;
+    const query = searchInput.value.trim();
+    if (!query) return;
 
-            // Reset UI
-            alertBox.style.display = 'none';
-            resultsList.innerHTML = '';
-            resultsSummary.innerText = '';
-            loading.style.display = 'block';
-            searchBtn.disabled = true;
+    // Reset UI như cũ...
+    loading.style.display = 'block';
 
-            try {
-                // Thêm tham số redirect: 'follow' để xử lý cơ chế chuyển hướng của Google Script
-const response = await fetch(`${API_URL}?query=${encodeURIComponent(query)}&auth=${API_KEY}`, {
-    method: 'GET',
-    mode: 'cors', // Đảm bảo chế độ cors được bật
-    headers: {
-        'Content-Type': 'text/plain;charset=utf-8',
-    },
-    redirect: 'follow' 
-});
-                const result = await response.json();
+    try {
+        // Cấu hình fetch đặc biệt để vượt lỗi CORS của Google Script
+        const response = await fetch(`${API_URL}?query=${encodeURIComponent(query)}&auth=${API_KEY}`, {
+            method: 'GET',
+            mode: 'cors', // Ép buộc chế độ CORS
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8',
+            },
+            redirect: 'follow' // QUAN TRỌNG: Cho phép trình duyệt đi theo link chuyển hướng của Google
+        });
 
-                if (!result.success) {
-                    throw new Error(result.message || "Có lỗi xảy ra");
-                }
+        // Kiểm tra nếu response ok
+        if (!response.ok) throw new Error("Mạng không ổn định hoặc URL sai");
 
-                renderResults(result.data, query);
-            } catch (error) {
-                alertBox.className = 'alert alert-error';
-                alertBox.innerText = error.message;
-                alertBox.style.display = 'block';
-            } finally {
-                loading.style.display = 'none';
-                searchBtn.disabled = false;
-            }
+        const result = await response.json();
+
+        if (!result.success) {
+            throw new Error(result.message || "Có lỗi xảy ra");
         }
+
+        renderResults(result.data, query);
+    } catch (error) {
+        console.error(error);
+        alertBox.className = 'alert alert-error';
+        alertBox.innerText = "Lỗi kết nối: " + error.message;
+        alertBox.style.display = 'block';
+    } finally {
+        loading.style.display = 'none';
+        searchBtn.disabled = false;
+    }
+}
 
         function renderResults(data, query) {
             if (data.length === 0) {
