@@ -316,6 +316,93 @@
             font-weight: 600;
         }
 
+
+        /* --- 5B. DỰ ÁN ĐANG KÊU GỌI --- */
+        #campaignsWrapper {
+            animation: fadeIn 0.4s ease;
+            margin-bottom: 2.5rem;
+        }
+
+        .section-title {
+            color: var(--text-dark);
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .campaign-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .campaign-card {
+            background: var(--white);
+            border: 1px solid var(--border-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 20px -12px rgba(0, 0, 0, 0.12);
+        }
+
+        .campaign-name {
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .campaign-row {
+            margin-bottom: 0.65rem;
+            font-size: 0.92rem;
+        }
+
+        .campaign-row .label {
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .campaign-row .value {
+            text-align: left;
+            display: block;
+            font-weight: 600;
+        }
+
+        .countdown-box {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            border-radius: 12px;
+            padding: 0.85rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .progress-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+            font-size: 0.86rem;
+            color: var(--text-muted);
+            margin-bottom: 0.45rem;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 12px;
+            background: #E2E8F0;
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--primary);
+            border-radius: 99px;
+            transition: width 0.4s ease;
+        }
+
         /* --- 6. FOOTER CHI TIẾT --- */
         footer {
             background: #1E3A8A;
@@ -429,6 +516,13 @@
             <div id="emptyAlert" class="alert alert-warning">Chúng tôi không tìm thấy dữ liệu khớp với thông tin bạn cung cấp. Vui lòng kiểm tra lại!</div>
         </div>
 
+
+        <!-- Campaign Section -->
+        <div id="campaignsWrapper" style="display:none;">
+            <h2 class="section-title">Các dự án đang kêu gọi quyên góp</h2>
+            <div class="campaign-grid" id="campaignsList"></div>
+        </div>
+
         <!-- Result Section -->
         <div id="resultsWrapper">
             <div class="results-summary" id="resultsCount"></div>
@@ -463,18 +557,22 @@
 
     <script>
         /* --- 1. CẤU HÌNH API --- */
-        const API_URL = "https://script.google.com/macros/s/AKfycbx4L2BEoOZ_8_vK99J5vEdkPZlvvOPlZU36y23zzQdFLbZIlyoWx48fuVwZ4Z1aU9Eo/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbzjh97dG0GhaSWzt_dHJpiS9s1J_2ZmNrvBOPE5PSkhSh_GN5153V_7uif28dZz0Wqm/exec";
         const API_KEY = "FLY2SKY_SECRET_0209";
 
         /* --- 2. XỬ LÝ SỰ KIỆN --- */
         const searchInput = document.getElementById('searchInput');
         const searchBtn = document.getElementById('searchBtn');
         const btnText = document.getElementById('btnText');
+        const campaignsWrapper = document.getElementById('campaignsWrapper');
 
         // Nhấn Enter để tìm
         searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleSearch();
         });
+
+        // Tải danh sách dự án đang kêu gọi khi mở trang
+        document.addEventListener('DOMContentLoaded', loadCampaigns);
 
         async function handleSearch() {
             const query = searchInput.value.trim();
@@ -488,6 +586,7 @@
             // UI Reset
             hideAlerts();
             document.getElementById('resultsWrapper').style.display = 'none';
+            campaignsWrapper.style.display = 'none';
             searchBtn.disabled = true;
             btnText.innerText = "ĐANG XỬ LÝ...";
 
@@ -496,7 +595,7 @@
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain' },
-                    body: JSON.stringify({ query: query, auth: API_KEY })
+                    body: JSON.stringify({ action: 'search', query: query, auth: API_KEY })
                 });
 
                 if (!response.ok) throw new Error("Network response was not ok");
@@ -527,9 +626,12 @@
 
             if (!data || data.length === 0) {
                 document.getElementById('emptyAlert').style.display = 'block';
+                campaignsWrapper.style.display = document.getElementById('campaignsList').children.length ? 'block' : 'none';
                 return;
             }
 
+            // Khi tra cứu ra kết quả thì tự động ẩn phần dự án đang kêu gọi
+            campaignsWrapper.style.display = 'none';
             wrapper.style.display = 'block';
             countLabel.innerText = `Tìm thấy ${data.length} kết quả phù hợp cho "${query}"`;
 
@@ -579,7 +681,148 @@
             });
         }
 
-        /* --- 4. HÀM PHỤ TRỢ UI --- */
+
+        /* --- 4. DỰ ÁN ĐANG KÊU GỌI --- */
+        async function loadCampaigns() {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({ action: 'getCampaigns', auth: API_KEY })
+                });
+
+                if (!response.ok) throw new Error("Network response was not ok");
+
+                const res = await response.json();
+                if (res.success && Array.isArray(res.data)) {
+                    displayCampaigns(res.data);
+                }
+            } catch (err) {
+                console.error("Không tải được danh sách dự án:", err);
+            }
+        }
+
+        function displayCampaigns(campaigns) {
+            const list = document.getElementById('campaignsList');
+            list.innerHTML = '';
+
+            if (!campaigns || campaigns.length === 0) {
+                campaignsWrapper.style.display = 'none';
+                return;
+            }
+
+            campaigns.forEach((item, index) => {
+                const goal = Number(item.soTienKeuGoi || 0);
+                const received = Number(item.soTienDaNhan || 0);
+                const percent = goal > 0 ? Math.min(100, (received / goal) * 100) : Number(item.tienDo || 0);
+
+                const card = document.createElement('div');
+                card.className = 'campaign-card';
+                card.innerHTML = `
+                    <div class="campaign-name">${escapeHtml(item.tenDuAn || 'Dự án kêu gọi')}</div>
+
+                    <div class="campaign-row">
+                        <span class="label">Thời gian bắt đầu:</span>
+                        <span class="value">${formatDateTime(item.thoiGianBatDau)}</span>
+                    </div>
+
+                    <div class="campaign-row">
+                        <span class="label">Thời gian kết thúc:</span>
+                        <span class="value">${formatDateTime(item.thoiGianKetThuc)}</span>
+                    </div>
+
+                    ${item.cuPhapUngHo ? `
+                        <div class="campaign-row">
+                            <span class="label">Cú pháp ủng hộ:</span>
+                            <span class="value-code">${escapeHtml(item.cuPhapUngHo)}</span>
+                        </div>
+                    ` : ''}
+
+                    <div class="countdown-box" data-end="${item.thoiGianKetThuc}">
+                        Đang tính thời gian...
+                    </div>
+
+                    <div class="campaign-row">
+                        <span class="label">Số tiền kêu gọi ủng hộ:</span>
+                        <span class="value-highlight">${formatMoney(goal)}</span>
+                    </div>
+
+                    <div class="progress-meta">
+                        <span>Đã nhận: ${formatMoney(received)}</span>
+                        <span>${Math.round(percent * 10) / 10}%</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill" style="width:${Math.min(100, percent)}%"></div>
+                    </div>
+                `;
+
+                list.appendChild(card);
+            });
+
+            campaignsWrapper.style.display = 'block';
+            updateCountdowns();
+            setInterval(updateCountdowns, 1000);
+        }
+
+        function updateCountdowns() {
+            document.querySelectorAll('.countdown-box').forEach(box => {
+                const endValue = box.getAttribute('data-end');
+                if (!endValue) {
+                    box.innerText = 'Chưa cập nhật thời gian kết thúc';
+                    return;
+                }
+
+                const endTime = new Date(endValue).getTime();
+                const now = new Date().getTime();
+                const diff = endTime - now;
+
+                if (isNaN(endTime)) {
+                    box.innerText = 'Thời gian chưa hợp lệ';
+                    return;
+                }
+
+                if (diff <= 0) {
+                    box.innerText = 'Đợt ủng hộ đã kết thúc';
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                const minutes = Math.floor((diff / (1000 * 60)) % 60);
+                const seconds = Math.floor((diff / 1000) % 60);
+
+                box.innerText = `Còn ${days} ngày ${hours} giờ ${minutes} phút ${seconds} giây`;
+            });
+        }
+
+        function formatDateTime(value) {
+            if (!value) return 'Chưa cập nhật';
+            const d = new Date(value);
+            if (isNaN(d.getTime())) return value;
+            return d.toLocaleString('vi-VN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        function formatMoney(value) {
+            const n = Number(value || 0);
+            return n.toLocaleString('vi-VN') + ' VNĐ';
+        }
+
+        function escapeHtml(text) {
+            return text.toString()
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        /* --- 5. HÀM PHỤ TRỢ UI --- */
         function showAlert(id, msg) {
             const el = document.getElementById(id);
             el.innerText = msg;
