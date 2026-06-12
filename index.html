@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cổng tra cứu thông tin Giấy chứng nhận và Sao kê tài khoản - Fly To Sky</title>
+    <title>Tra cứu GCN & Sao kê tài khoản - Fly To Sky</title>
     <!-- Google Fonts: Be Vietnam Pro -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -512,6 +512,35 @@
             display: block;
         }
 
+        /* Khi ở trang sao kê trên màn hình lớn, mở rộng khung nội dung để iframe dễ xem hơn */
+        body.statement-view .container {
+            max-width: none;
+            width: 100%;
+            padding-left: clamp(1rem, 3vw, 3rem);
+            padding-right: clamp(1rem, 3vw, 3rem);
+        }
+
+        body.statement-view .page-tabs {
+            max-width: 800px;
+        }
+
+        body.statement-view #statementPage {
+            width: 100%;
+        }
+
+        @media (min-width: 901px) {
+            body.statement-view .statement-card {
+                width: min(1540px, 100%);
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            body.statement-view .statement-frame-wrap {
+                height: min(86vh, 980px);
+                min-height: 720px;
+            }
+        }
+
         /* --- 5D. SAO KÊ TÀI KHOẢN --- */
         .statement-card {
             background: var(--white);
@@ -541,8 +570,8 @@
 
         .statement-frame-wrap {
             width: 100%;
-            height: min(78vh, 820px);
-            min-height: 620px;
+            height: min(82vh, 900px);
+            min-height: 660px;
             background: #F8FAFC;
         }
 
@@ -571,7 +600,9 @@
 
         /* --- 7. RESPONSIVE --- */
         @media (max-width: 600px) {
-            .container {
+            .container,
+            body.statement-view .container {
+                max-width: 800px;
                 padding: 2rem 1rem;
             }
             .page-tabs {
@@ -632,7 +663,7 @@
 
         <!-- Page Tabs -->
         <nav class="page-tabs" aria-label="Chuyển trang">
-            <button type="button" class="tab-btn active" data-page="lookup" onclick="switchPage('lookup')">Tra cứu Giấy chứng nhận</button>
+            <button type="button" class="tab-btn active" data-page="lookup" onclick="switchPage('lookup')">Tra cứu GCN</button>
             <button type="button" class="tab-btn" data-page="statement" onclick="switchPage('statement')">Sao kê tài khoản</button>
         </nav>
 
@@ -679,10 +710,7 @@
                         loading="lazy"
                         referrerpolicy="no-referrer-when-downgrade">
                     </iframe>
-                </div>
-                <div class="statement-open">
-                    Nếu iframe không hiển thị, <a href="https://thiennguyen.app/doi-tac/minh-bach-tai-khoan/9446" target="_blank" rel="noopener">mở trang sao kê tại đây ↗</a>
-                </div>
+                </div>                
             </div>
         </section>
     </div>
@@ -728,6 +756,7 @@
 
             document.getElementById('lookupPage').classList.toggle('active', !isStatement);
             document.getElementById('statementPage').classList.toggle('active', isStatement);
+            document.body.classList.toggle('statement-view', isStatement);
 
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.page === page);
