@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cổng thông tin tra cứu Giấy chứng nhận & Sao kê tài khoản - Fly To Sky</title>
+    <title>Cổng thông tin Tra cứu Giấy chứng nhận & Sao kê tài khoản - Fly To Sky</title>
     <!-- Google Fonts: Be Vietnam Pro -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -667,7 +667,7 @@
             <button type="button" class="tab-btn" data-page="statement" onclick="switchPage('statement')">Sao kê tài khoản</button>
         </nav>
 
-        <!-- Trang Tra cứu GCN -->
+        <!-- Trang Tra cứu Giấy chứng nhận -->
         <section id="lookupPage" class="page-section active">
             <!-- Search Form -->
             <div class="search-box">
@@ -710,7 +710,7 @@
                         loading="lazy"
                         referrerpolicy="no-referrer-when-downgrade">
                     </iframe>
-                </div>
+                </div>                
             </div>
         </section>
     </div>
@@ -751,7 +751,38 @@
         const btnText = document.getElementById('btnText');
         const campaignsWrapper = document.getElementById('campaignsWrapper');
 
-        function switchPage(page) {
+        const PAGE_ROUTES = {
+            lookup: 'tracuu',
+            statement: 'saoke'
+        };
+
+        function getBasePath() {
+            let path = window.location.pathname;
+
+            // Nếu đang ở /index.html thì đưa về thư mục chứa file index.
+            path = path.replace(/\/index\.html$/i, '/');
+
+            // Nếu đang ở /tracuu hoặc /saoke thì lấy phần thư mục cha làm base.
+            path = path.replace(/\/(tracuu|saoke)\/?$/i, '/');
+
+            return path.endsWith('/') ? path : path + '/';
+        }
+
+        function buildPageUrl(page) {
+            return getBasePath() + PAGE_ROUTES[page];
+        }
+
+        function getPageFromUrl() {
+            const cleanPath = window.location.pathname.replace(/\/$/, '');
+            const lastSegment = cleanPath.split('/').pop().toLowerCase();
+
+            if (lastSegment === 'saoke') return 'statement';
+            if (lastSegment === 'tracuu') return 'lookup';
+
+            return 'lookup';
+        }
+
+        function switchPage(page, updateUrl = true, replaceUrl = false) {
             const isStatement = page === 'statement';
 
             document.getElementById('lookupPage').classList.toggle('active', !isStatement);
@@ -765,15 +796,30 @@
             const subtitle = document.getElementById('pageSubtitle');
             subtitle.innerText = isStatement ? 'Sao kê tài khoản minh bạch' : 'Tra cứu Giấy Chứng Nhận';
 
-            if (history.replaceState) {
-                history.replaceState(null, '', isStatement ? '#sao-ke-tai-khoan' : '#tra-cuu-gcn');
+            if (updateUrl && history.pushState) {
+                const nextUrl = buildPageUrl(page);
+                const currentUrl = window.location.pathname + window.location.search + window.location.hash;
+
+                if (currentUrl !== nextUrl) {
+                    if (replaceUrl) {
+                        history.replaceState({ page }, '', nextUrl);
+                    } else {
+                        history.pushState({ page }, '', nextUrl);
+                    }
+                }
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            if (window.location.hash === '#sao-ke-tai-khoan') {
-                switchPage('statement');
-            }
+            const initialPage = getPageFromUrl();
+            const lastSegment = window.location.pathname.replace(/\/$/, '').split('/').pop().toLowerCase();
+            const shouldNormalizeUrl = !['tracuu', 'saoke'].includes(lastSegment) || window.location.hash;
+
+            switchPage(initialPage, shouldNormalizeUrl, true);
+        });
+
+        window.addEventListener('popstate', () => {
+            switchPage(getPageFromUrl(), false);
         });
 
         // Nhấn Enter để tìm
